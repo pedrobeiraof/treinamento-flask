@@ -13,3 +13,7 @@ class LogonForm(FlaskForm):
     password = PasswordField("password", validators=[DataRequired()])
     name = StringField("username")
     email = StringField("password")
+
+class PostForm(FlaskForm):
+    content = StringField("content")
+    user = StringField("user_id")

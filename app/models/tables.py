@@ -32,7 +32,7 @@ class User(db.Model):
         self.email = email
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return self.username
 
 
 class Post(db.Model):
@@ -44,12 +44,12 @@ class Post(db.Model):
 
     user = db.relationship('User', foreign_keys=user_id)
 
-    def __init__(self, username, email):
+    def __init__(self, content, user_id):
         self.content = content
         self.user_id = user_id
 
     def __repr__(self):
-        return '<Post %r>' % self.id
+        return self.content
 
 
 class Follow(db.Model):
@@ -62,9 +62,30 @@ class Follow(db.Model):
     user = db.relationship('User', foreign_keys=user_id)
     follower = db.relationship('User', foreign_keys=follower_id)
 
-    def __init__(self, username, email):
+    def __init__(self, user_id, follower_id):
         self.user_id = user_id
         self.follower_id = follower_id
 
     def __repr__(self):
         return '<Follower %r>' % self.id
+
+
+class Like(db.Model):
+    __tablename__ = "likes"
+
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    current_user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    user = db.relationship('User', foreign_keys=user_id)
+    post = db.relationship('Post', foreign_keys=post_id)
+    current = db.relationship('User', foreign_keys=current_user_id)
+
+    def __init__(self, post_id, user_id, current_user_id):
+        self.post_id = post_id
+        self.user_id = user_id
+        self.current_user_id = current_user_id
+
+    def __repr__(self):
+        return self.id

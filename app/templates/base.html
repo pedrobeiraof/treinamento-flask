@@ -10,6 +10,7 @@
 
     <!-- Bootstrap core CSS -->
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='font-awesome/css/font-awesome.min.css') }}" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -24,7 +25,6 @@
       <div class="header clearfix">
         <nav>
           <ul class="nav nav-pills pull-right">
-            <li>{{ current_user.username }}</li>
             <li role="presentation" class="active"><a href="{{ url_for('index') }}">Home</a></li>
             <li role="presentation"><a href="#">About</a></li>
             {% if current_user.is_authenticated %}

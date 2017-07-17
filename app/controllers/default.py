@@ -1,9 +1,10 @@
 from flask import render_template, flash, redirect, url_for
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, current_user
 from app import app, db, lm
+from sqlalchemy import desc
 
-from app.models.tables import User
-from app.models.forms import LoginForm, LogonForm
+from app.models.tables import User, Post, Like
+from app.models.forms import LoginForm, LogonForm, PostForm
 
 
 @lm.user_loader
@@ -11,10 +12,36 @@ def load_user(id):
     return User.query.filter_by(id=id).first()
 
 
-@app.route("/index")
-@app.route("/")
+@app.route("/index", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def index():
-    return render_template('index.html')
+    form = PostForm()
+    post = Post.query.order_by(Post.id.desc())
+    like = Like.query.order_by(Like.id.desc())
+    if form.validate_on_submit():
+        content = form.content.data
+        user = current_user.id
+        i = Post(content, user)
+        db.session.add(i)
+        db.session.commit()
+    return render_template('index.html',
+                            form=form, post=post, like=like)
+
+
+@app.route("/delete/<id>", methods=["GET", "POST"])
+def delete(id):
+    db.session.execute('delete from posts where id = %s' % id)
+    db.session.commit()
+    return index()
+
+
+@app.route("/like/<post>/<user>", methods=["GET", "POST"])
+def like(post, user):
+    i = Like(post, user, current_user.id)
+    db.session.add(i)
+    db.session.commit()
+    return 
+
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -54,12 +81,6 @@ def logon():
                             form=form)
 
 
-@app.route("/delete")
-def delete():
-    user = User.query.filter_by(username=form.username.data).first()
-    return render_template('delete.html')
-
-
 @app.route("/logout")
 def logout():
     logout_user()
@@ -77,9 +98,7 @@ def read(info):
 
 @app.route("/add")
 def add():
-    i = User("jose", "1234", "Jose", "jose@email.com")
+    i = Post("novo post",3)
     db.session.add(i)
     db.session.commit()
     return "Ok"
-
-
